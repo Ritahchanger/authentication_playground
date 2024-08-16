@@ -88,6 +88,14 @@ connection.connect((err) => {
 const registrationRoute = require("../routes/RegistrationRoute");
 
 
+const AuthorizationRoute = require("../routes/AuthorizationRoute");
+
+
+app.use("/api/users",registrationRoute);
+
+app.use("/api/auth",AuthorizationRoute);
+
+
 app.listen(PORT, () => {
   console.log(`The server is running on PORT ${PORT}`);
 });

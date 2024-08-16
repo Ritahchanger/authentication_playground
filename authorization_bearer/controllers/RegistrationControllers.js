@@ -1,44 +1,44 @@
-const jwt = require("jsonwebtoken");
-
-const bcrypt = require("bcryptjs");
-
-const connection = require("../database/database_connection");
+const bcrypt = require('bcryptjs');
+const connection = require('../database/database_connection'); // Adjust path as needed
 
 const register = async (req, res) => {
   const { email, firstName, lastName, password } = req.body;
 
   try {
-    connection.query(
-      "SELECT * FROM users WHERE email = ? ",
-      [email],
-      (err, results) => {
-        if (err) {
-          return res.status(500).json({ error: err.message });
-        }
 
-        if (results.length > 0) {
-          return res.status(400).json({ message: "User already exists" });
-        }
+    connection.query("SELECT * FROM users WHERE email = ?", [email], async (err, results) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
 
-        const salt = bcrypt.genSalt(10);
+      if (!Array.isArray(results)) {
+        return res.status(500).json({ error: "Unexpected query result format" });
+      }
 
-        const hashedPassword = bcrypt.hash(password, salt);
+      if (results.length > 0) {
+        return res.status(400).json({ message: "User already exists" });
+      }
+
+      try {
+        
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
         connection.query(
-          "INSERT INTO USERS (email,firstName,lastName,password) VALUES (?,?,?,?)",
+          "INSERT INTO users (email, firstName, lastName, password) VALUES (?, ?, ?, ?)",
           [email, firstName, lastName, hashedPassword],
-          (err, results) => {
+          (err) => {
             if (err) {
               return res.status(500).json({ error: err.message });
             }
 
-            return res
-              .status(201)
-              .json({ message: "User registered successfully" });
+            return res.status(201).json({ message: "User registered successfully" });
           }
         );
+      } catch (error) {
+        return res.status(500).json({ message: error.message });
       }
-    );
+    });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
