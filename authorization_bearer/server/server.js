@@ -11,6 +11,8 @@ const PORT = process.env.PORT || 8000;
 
 const bodyParser = require("body-parser");
 
+const AuthenticateToken = require("../middlewares/AuthenticateToken")
+
 
 app.use(express.json());
 
@@ -90,10 +92,21 @@ const registrationRoute = require("../routes/RegistrationRoute");
 
 const AuthorizationRoute = require("../routes/AuthorizationRoute");
 
+const UsersRoute = require("../routes/UsersRoute");
 
-app.use("/api/users",registrationRoute);
+
+
+
+app.use("/api/register",registrationRoute);
 
 app.use("/api/auth",AuthorizationRoute);
+
+
+app.use(AuthenticateToken);
+
+
+app.use("/api/users",UsersRoute);
+
 
 
 app.listen(PORT, () => {
